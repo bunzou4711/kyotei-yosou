@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="競艇予想">
+<meta name="theme-color" content="#07304d">
+<meta name="color-scheme" content="light dark">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%2307304d'/%3E%3Cpath d='M20 118c14-10 28-10 42 0s28 10 42 0 28-10 42 0' stroke='%237fd4f2' stroke-width='10' fill='none' stroke-linecap='round'/%3E%3Cpath d='M38 96l14-34h52l-10 20H58l-6 14z' fill='%23ffffff'/%3E%3Ccircle cx='126' cy='52' r='17' fill='%23f06423'/%3E%3Ctext x='126' y='60' font-size='24' font-family='sans-serif' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3E1%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2307304d'/%3E%3Cpath d='M12 66c10-7 20-7 30 0s20 7 30 0 14-6 16-4' stroke='%237fd4f2' stroke-width='7' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>競艇予想</title>
+<style>
+  :root{
+    --bg:#eef4f6;
+    --surface:#ffffff;
+    --surface2:#e3edf1;
+    --ink:#132530;
+    --muted:#54687a;
+    --line:#cfdde4;
+    --navy:#07304d;
+    --navy-ink:#ffffff;
+    --accent:#0b6f9c;
+    --accent-soft:#dceef6;
+    --hot:#d92b1f;
+    --warn-bg:#fff4e0;
+    --warn-line:#e8b34b;
+    --warn-ink:#6b4a00;
+    --good-bg:#e6f5ea;
+    --good-line:#57a773;
+    --good-ink:#14532d;
+    --err-bg:#fdecea;
+    --err-line:#d92b1f;
+    --err-ink:#7a130c;
+    --chip-bg:#ffffff;
+    --shadow:0 1px 3px rgba(7,48,77,.14);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#08141c;
+      --surface:#10222e;
+      --surface2:#16303f;
+      --ink:#e9f2f6;
+      --muted:#9db2bf;
+      --line:#24414f;
+      --navy:#0b3d5c;
+      --accent:#3aa7d6;
+      --accent-soft:#12384c;
+      --warn-bg:#3a2c08;
+      --warn-line:#a97e1f;
+      --warn-ink:#ffd97a;
+      --good-bg:#0f2f1c;
+      --good-line:#2f7d4c;
+      --good-ink:#8fe0ab;
+      --err-bg:#3d130e;
+      --err-line:#a52a20;
+      --err-ink:#ffb3ab;
+      --chip-bg:#10222e;
+      --shadow:0 1px 3px rgba(0,0,0,.5);
+      color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",-apple-system,BlinkMacSystemFont,"Yu Gothic",sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  main{max-width:640px;margin:0 auto;padding:14px 14px 40px}
+  h1{font-size:1.35rem;line-height:1.35;margin:2px 0 4px}
+  h2{font-size:1.12rem;line-height:1.4;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+  h2 .step{
+    flex:none;width:26px;height:26px;border-radius:50%;
+    background:var(--navy);color:var(--navy-ink);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:.9rem;font-weight:700;
+  }
+  h3{font-size:1rem;margin:0 0 8px}
+  p{margin:0 0 8px}
+  .lead{color:var(--muted);font-size:.92rem;margin-bottom:14px}
+  .date-line{font-size:.9rem;color:var(--muted);margin-bottom:2px}
+  section.card{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:16px 14px;margin-bottom:14px;box-shadow:var(--shadow);
+  }
+  button{font:inherit;cursor:pointer;touch-action:manipulation}
+  .grid-stadium{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .grid-race{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  @media (max-width:380px){.grid-race{grid-template-columns:repeat(3,1fr)}}
+  .pick{
+    min-height:52px;border:1.5px solid var(--line);border-radius:10px;
+    background:var(--chip-bg);color:var(--ink);
+    padding:8px 4px;font-weight:700;font-size:1rem;line-height:1.25;
+  }
+  .pick small{display:block;font-weight:400;font-size:.72rem;color:var(--muted);margin-top:2px}
+  .pick[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+  .pick[aria-pressed="true"] small{color:#bcd9e8}
+  .pick:active{transform:scale(.98)}
+  .status{
+    border-radius:10px;padding:12px 14px;font-size:.93rem;margin-bottom:14px;border:1px solid;
+  }
+  .status.loading{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+  .status.error{background:var(--err-bg);border-color:var(--err-line);color:var(--err-ink)}
+  .status:empty{display:none}
+  .btn{
+    min-height:46px;border-radius:10px;border:1.5px solid var(--accent);
+    background:var(--accent);color:#fff;font-weight:700;padding:8px 16px;font-size:.95rem;
+  }
+  .btn.sub{background:var(--surface);color:var(--accent)}
+  .btn:active{transform:scale(.98)}
+  .race-head{margin-bottom:10px}
+  .race-title{font-weight:700;font-size:1.02rem}
+  .race-meta{color:var(--muted);font-size:.86rem}
+  .badge{
+    display:inline-block;border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:700;
+    border:1px solid;margin:4px 0 10px;
+  }
+  .badge.ok{background:var(--good-bg);border-color:var(--good-line);color:var(--good-ink)}
+  .badge.wait{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn-ink)}
+  /* ranking cards */
+  .boat{
+    border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;
+    background:var(--surface);
+  }
+  .boat.top1{border:2px solid var(--hot)}
+  .boat-row{display:flex;align-items:center;gap:10px}
+  .mark{font-size:1.7rem;font-weight:900;width:38px;text-align:center;flex:none;line-height:1}
+  .mark.m1{color:var(--hot)}
+  .mark.m2{color:var(--accent)}
+  .mark.m3{color:#b97d10}
+  .mark.m4{color:var(--muted)}
+  .mark.none{color:var(--line);font-size:1.1rem}
+  .lane{
+    flex:none;width:34px;height:34px;border-radius:8px;font-weight:900;font-size:1.05rem;
+    display:inline-flex;align-items:center;justify-content:center;border:1.5px solid rgba(0,0,0,.25);
+  }
+  .lane1{background:#ffffff;color:#111}
+  .lane2{background:#1c1c1e;color:#fff}
+  .lane3{background:#d92b1f;color:#fff}
+  .lane4{background:#1668c4;color:#fff}
+  .lane5{background:#f2c41c;color:#111}
+  .lane6{background:#1d9e57;color:#fff}
+  .boat-name{font-weight:700;font-size:1.02rem;line-height:1.3;min-width:0}
+  .boat-name .cls{font-size:.78rem;color:var(--muted);font-weight:400}
+  .score{margin-left:auto;text-align:right;flex:none}
+  .score b{font-size:1.45rem;line-height:1;color:var(--navy)}
+  @media (prefers-color-scheme: dark){.score b{color:#7fd4f2}}
+  .score small{display:block;color:var(--muted);font-size:.7rem}
+  .bar{height:8px;background:var(--surface2);border-radius:99px;margin:10px 0 8px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+  .boat.top1 .bar i{background:var(--hot)}
+  .reason{font-size:.9rem;margin:0 0 8px}
+  .reason b{color:var(--hot)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:.78rem}
+  .stats div{background:var(--surface2);border-radius:8px;padding:5px 8px;line-height:1.35}
+  .stats span{display:block;color:var(--muted);font-size:.68rem}
+  .stats b{font-size:.9rem}
+  .breakdown{font-size:.72rem;color:var(--muted);margin-top:8px;line-height:1.5}
+  /* tickets */
+  .ticket-group{margin-bottom:14px}
+  .ticket-group-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+  .ticket-group-head h3{margin:0}
+  .ticket-group-head .sub{font-size:.85rem;color:var(--muted);font-weight:700}
+  .formation{
+    background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:.95rem;margin-bottom:8px;line-height:1.7;
+  }
+  .formation .axis{font-weight:900;color:var(--hot)}
+  table.tickets{width:100%;border-collapse:collapse;font-size:.95rem}
+  table.tickets td{padding:6px 4px;border-bottom:1px solid var(--line)}
+  table.tickets td.combo{font-weight:800;letter-spacing:.04em;white-space:nowrap}
+  table.tickets td.amt{text-align:right;font-weight:700;white-space:nowrap;width:92px}
+  table.tickets tr.zero td{color:var(--muted)}
+  table.tickets tr.zero td.amt{font-weight:400;font-size:.8rem}
+  .budget-row{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin-bottom:10px}
+  .budget-row label{font-weight:700;font-size:.92rem;align-self:center}
+  .budget-input{display:flex;align-items:center;gap:6px;flex:1;min-width:150px}
+  .budget-input input{
+    flex:1;min-width:0;min-height:48px;font-size:1.15rem;font-weight:700;
+    border:1.5px solid var(--line);border-radius:10px;padding:6px 10px;
+    background:var(--surface);color:var(--ink);text-align:right;
+  }
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{
+    min-height:40px;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--chip-bg);color:var(--ink);font-weight:700;font-size:.88rem;
+  }
+  .chip[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .total-line{
+    display:flex;justify-content:space-between;align-items:baseline;
+    border-top:2px solid var(--navy);padding-top:10px;margin-top:4px;font-weight:700;
+  }
+  .total-line b{font-size:1.3rem}
+  .note{font-size:.83rem;color:var(--muted)}
+  .honest{
+    background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink);
+    border-radius:10px;padding:12px 14px;font-size:.9rem;margin-bottom:14px;
+  }
+  .honest b{font-size:.98rem}
+  details.card{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:4px 14px;margin-bottom:14px;box-shadow:var(--shadow);
+  }
+  details.card summary{min-height:48px;display:flex;align-items:center;font-weight:700;cursor:pointer;font-size:1rem}
+  details.card .inner{padding:2px 0 14px;font-size:.9rem}
+  details.card ul{margin:6px 0;padding-left:20px}
+  details.card li{margin-bottom:5px}
+  .hidden{display:none !important}
+  .spin{display:inline-block;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){.spin{animation:none}.pick:active,.btn:active{transform:none}}
+  footer{font-size:.78rem;color:var(--muted);text-align:center;padding:6px 4px 0;line-height:1.7}
+  footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+  <p class="date-line" id="dateLine">読み込み中…</p>
+  <h1>今日のレース予想</h1>
+  <p class="lead">場とレースを選ぶだけ。出走表の数字から6艇に点数をつけて、買い目まで出します。数字の入れ替えは不要です。</p>
+
+  <div class="status loading" id="statusBox" role="status">⏳ 今日の出走表を取りにいっています…</div>
+
+  <section class="card hidden" id="stadiumCard">
+    <h2><span class="step">1</span>場を選ぶ</h2>
+    <div class="grid-stadium" id="stadiumGrid"></div>
+    <p class="note" style="margin-top:10px">今日開催している場だけを表示しています。</p>
+  </section>
+
+  <section class="card hidden" id="raceCard">
+    <h2><span class="step">2</span>レースを選ぶ</h2>
+    <div class="grid-race" id="raceGrid"></div>
+    <p class="note" style="margin-top:10px">数字の下は締切時刻です。締切を過ぎたレースは予想の参考にだけしてください。</p>
+  </section>
+
+  <div id="resultArea"></div>
+
+  <div class="honest">
+    <b>正直にお伝えします：必ず当たる保証はないです。</b><br>
+    この予想は出走表の数字をもとにした目安です。競艇はスタートや展開しだいで大きく変わります。買うかどうか、金額は、最後はご自身で決めてください。無理のない範囲で楽しみましょう。
+  </div>
+
+  <details class="card">
+    <summary>点数のつけ方（100点満点）</summary>
+    <div class="inner">
+      <ul>
+        <li><b>全国勝率（20点）</b>：全国の場での強さ。高いほど実力上位。</li>
+        <li><b>当地勝率（15点）</b>：その場での強さ。水面との相性を見ます。</li>
+        <li><b>モーター2連率（15点）</b>：今節使っているエンジンの調子。</li>
+        <li><b>ボート2連率（10点）</b>：船そのものの調子。</li>
+        <li><b>平均ST（15点）</b>：スタートの平均タイミング。数字が小さいほど速い。</li>
+        <li><b>級別（10点）</b>：A1級が一番上。格の差を見ます。</li>
+        <li><b>コース補正（10点）</b>：競艇は1コースが圧倒的に有利。枠番が内側ほど加点。</li>
+        <li><b>展示タイム（5点）</b>：レース直前の試走タイム。まだ発表されていないレースでは、この分を除いて計算します（その場合は95点満点）。</li>
+      </ul>
+      <p>印の意味：<b>◎</b>＝本命、<b>○</b>＝対抗、<b>▲</b>＝3番手、<b>△</b>＝押さえ。</p>
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>買い目の言葉の説明</summary>
+    <div class="inner">
+      <ul>
+        <li><b>3連単</b>：1・2・3着を順番まで当てる買い方。当たりにくい分、配当は大きめ。</li>
+        <li><b>2連単</b>：1・2着を順番まで当てる買い方。</li>
+        <li><b>3連複</b>：1〜3着の3艇を順番なしで当てる買い方。3連単より当たりやすい「保険」向き。</li>
+        <li><b>フォーメーション</b>：1着・2着・3着の候補をまとめて買う買い方です。</li>
+      </ul>
+    </div>
+  </details>
+
+  <footer>
+    データ：BoatRace Open API（出走表・直前情報）を利用しています。<br>
+    このページは予想の参考用です。舟券の購入は自己責任でお願いします。
+  </footer>
+</main>
+<script>
+(function(){
+"use strict";
+var STADIUMS={1:"桐生",2:"戸田",3:"江戸川",4:"平和島",5:"多摩川",6:"浜名湖",7:"蒲郡",8:"常滑",9:"津",10:"三国",11:"びわこ",12:"住之江",13:"尼崎",14:"鳴門",15:"丸亀",16:"児島",17:"宮島",18:"徳山",19:"下関",20:"若松",21:"芦屋",22:"福岡",23:"唐津",24:"大村"};
+var CLASSES={1:"A1級",2:"A2級",3:"B1級",4:"B2級"};
+var MARKS=["◎","○","▲","△"];
+var MARK_CLASS=["m1","m2","m3","m4"];
+
+var programsData=null;   // array of program races
+var previewsMap={};      // key "stadium-race" -> preview race
+var previewsOk=false;
+var selStadium=null;
+var selRace=null;
+var currentScored=null;  // scored boats for current race
+var currentTickets=null; // ticket groups
+
+var $=function(id){return document.getElementById(id);};
+var statusBox=$("statusBox"), stadiumCard=$("stadiumCard"), raceCard=$("raceCard"),
+    stadiumGrid=$("stadiumGrid"), raceGrid=$("raceGrid"), resultArea=$("resultArea");
+
+function todayJST(){
+  var parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+  var y="",m="",d="";
+  for(var i=0;i<parts.length;i++){
+    if(parts[i].type==="year")y=parts[i].value;
+    if(parts[i].type==="month")m=parts[i].value;
+    if(parts[i].type==="day")d=parts[i].value;
+  }
+  return {yyyy:y, yyyymmdd:y+m+d, label:y+"年"+Number(m)+"月"+Number(d)+"日"};
+}
+var TODAY=todayJST();
+$("dateLine").textContent=TODAY.label+"（今日）の開催";
+
+function apiUrl(kind){
+  return "https://boatraceopenapi.github.io/"+kind+"/v2/"+TODAY.yyyy+"/"+TODAY.yyyymmdd+".json";
+}
+function fetchJson(url){
+  return fetch(url).then(function(r){
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return r.json();
+  });
+}
+function showError(msg){
+  statusBox.className="status error";
+  statusBox.innerHTML="";
+  var p=document.createElement("p"); p.style.margin="0 0 10px"; p.textContent=msg;
+  var b=document.createElement("button"); b.className="btn"; b.textContent="もう一度読み込む";
+  b.addEventListener("click",loadAll);
+  statusBox.appendChild(p); statusBox.appendChild(b);
+}
+function loadAll(){
+  statusBox.className="status loading";
+  statusBox.innerHTML="<span class=\"spin\">⏳</span> 今日の出走表を取りにいっています…";
+  stadiumCard.classList.add("hidden"); raceCard.classList.add("hidden"); resultArea.innerHTML="";
+  selStadium=null; selRace=null;
+  var p1=fetchJson(apiUrl("programs"));
+  var p2=fetchJson(apiUrl("previews")).then(function(j){
+    previewsMap={}; previewsOk=true;
+    var list=j.previews||[];
+    for(var i=0;i<list.length;i++){
+      previewsMap[list[i].race_stadium_number+"-"+list[i].race_number]=list[i];
+    }
+  }).catch(function(){ previewsMap={}; previewsOk=false; });
+  p1.then(function(j){
+    programsData=j.programs||[];
+    return p2;
+  }).then(function(){
+    if(!programsData.length){
+      statusBox.className="status error";
+      statusBox.textContent="今日は開催中のレースが見つかりませんでした。時間をおいて、もう一度開いてみてください。";
+      return;
+    }
+    statusBox.className="status"; statusBox.textContent="";
+    buildStadiums();
+  }).catch(function(){
+    showError("データが取れませんでした。電波の届く場所で、もう一度試してください。出走表がまだ公開されていない早朝は、取れないことがあります。");
+  });
+}
+
+function buildStadiums(){
+  var seen={}, order=[];
+  for(var i=0;i<programsData.length;i++){
+    var s=programsData[i].race_stadium_number;
+    if(!seen[s]){seen[s]=true; order.push(s);}
+  }
+  order.sort(function(a,b){return a-b;});
+  stadiumGrid.innerHTML="";
+  order.forEach(function(s){
+    var b=document.createElement("button");
+    b.className="pick"; b.setAttribute("aria-pressed","false");
+    b.textContent=STADIUMS[s]||("場"+s);
+    b.addEventListener("click",function(){ selectStadium(s); });
+    b.dataset.stadium=s;
+    stadiumGrid.appendChild(b);
+  });
+  stadiumCard.classList.remove("hidden");
+}
+function selectStadium(s){
+  selStadium=s; selRace=null; resultArea.innerHTML="";
+  var btns=stadiumGrid.querySelectorAll(".pick");
+  for(var i=0;i<btns.length;i++){
+    btns[i].setAttribute("aria-pressed", String(Number(btns[i].dataset.stadium)===s));
+  }
+  buildRaces(s);
+  raceCard.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closedTime(race){
+  var t=String(race.race_closed_at||"");
+  var m=t.match(/(\d{2}:\d{2})/);
+  return m?m[1]:"--:--";
+}
+function buildRaces(s){
+  var races=programsData.filter(function(r){return r.race_stadium_number===s;});
+  races.sort(function(a,b){return a.race_number-b.race_number;});
+  raceGrid.innerHTML="";
+  races.forEach(function(r){
+    var b=document.createElement("button");
+    b.className="pick"; b.setAttribute("aria-pressed","false");
+    b.innerHTML="";
+    b.appendChild(document.createTextNode(r.race_number+"R"));
+    var sm=document.createElement("small");
+    sm.textContent="締切 "+closedTime(r);
+    b.appendChild(sm);
+    b.dataset.race=r.race_number;
+    b.addEventListener("click",function(){ selectRace(r); });
+    raceGrid.appendChild(b);
+  });
+  raceCard.classList.remove("hidden");
+}
+function selectRace(race){
+  selRace=race;
+  var btns=raceGrid.querySelectorAll(".pick");
+  for(var i=0;i<btns.length;i++){
+    btns[i].setAttribute("aria-pressed", String(Number(btns[i].dataset.race)===race.race_number));
+  }
+  renderResult(race);
+  resultArea.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ---------- scoring ---------- */
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+function fmt(n){return (Math.round(n*10)/10).toFixed(1);}
+
+function scoreRace(race){
+  var prev=previewsMap[race.race_stadium_number+"-"+race.race_number];
+  var exMap={}, hasEx=false;
+  if(prev&&prev.boats){
+    for(var i=0;i<prev.boats.length;i++){
+      var pb=prev.boats[i];
+      exMap[pb.racer_boat_number]=pb.racer_exhibition_time||0;
+      if((pb.racer_exhibition_time||0)>0) hasEx=true;
+    }
+  }
+  var exMin=Infinity, exMax=0;
+  if(hasEx){
+    for(var k in exMap){ if(exMap[k]>0){ exMin=Math.min(exMin,exMap[k]); exMax=Math.max(exMax,exMap[k]); } }
+  }
+  var coursePts={1:10,2:7,3:5,4:4,5:2.5,6:1};
+  var classPts={1:10,2:7.5,3:5,4:2.5};
+  var scored=race.boats.map(function(b){
+    var nat=b.racer_national_top_1_percent||0;
+    var loc=b.racer_local_top_1_percent||0;
+    var mot=b.racer_assigned_motor_top_2_percent||0;
+    var bot=b.racer_assigned_boat_top_2_percent||0;
+    var st=(b.racer_average_start_timing==null?0.2:b.racer_average_start_timing);
+    var parts={
+      nat: clamp(nat*2.5,0,20),
+      loc: clamp(loc*1.875,0,15),
+      mot: clamp(mot*0.3,0,15),
+      bot: clamp(bot*0.2,0,10),
+      st:  clamp((0.25-st)/0.15*15,0,15),
+      cls: classPts[b.racer_class_number]!=null?classPts[b.racer_class_number]:2.5,
+      crs: coursePts[b.racer_boat_number]!=null?coursePts[b.racer_boat_number]:1,
+      ex:  null
+    };
+    var total=parts.nat+parts.loc+parts.mot+parts.bot+parts.st+parts.cls+parts.crs;
+    var exTime=exMap[b.racer_boat_number]||0;
+    if(hasEx&&exTime>0){
+      parts.ex = exMax>exMin ? (exMax-exTime)/(exMax-exMin)*5 : 2.5;
+      total+=parts.ex;
+    }
+    return {boat:b, parts:parts, total:total, exTime:exTime};
+  });
+  scored.sort(function(a,b){return b.total-a.total;});
+  // reasons need field-best info
+  var best={nat:-1,loc:-1,mot:-1,bot:-1,st:Infinity,ex:Infinity};
+  scored.forEach(function(s){
+    var b=s.boat;
+    best.nat=Math.max(best.nat,b.racer_national_top_1_percent||0);
+    best.loc=Math.max(best.loc,b.racer_local_top_1_percent||0);
+    best.mot=Math.max(best.mot,b.racer_assigned_motor_top_2_percent||0);
+    best.bot=Math.max(best.bot,b.racer_assigned_boat_top_2_percent||0);
+    best.st=Math.min(best.st,b.racer_average_start_timing==null?9:b.racer_average_start_timing);
+    if(s.exTime>0) best.ex=Math.min(best.ex,s.exTime);
+  });
+  scored.forEach(function(s,idx){ s.rank=idx+1; s.reason=makeReason(s,best,hasEx); });
+  return {scored:scored, hasEx:hasEx, maxScore:hasEx?100:95};
+}
+
+function makeReason(s,best,hasEx){
+  var b=s.boat, good=[], weak=[];
+  var nat=b.racer_national_top_1_percent||0, loc=b.racer_local_top_1_percent||0;
+  var mot=b.racer_assigned_motor_top_2_percent||0, bot=b.racer_assigned_boat_top_2_percent||0;
+  var st=b.racer_average_start_timing;
+  if(b.racer_boat_number===1) good.push("1コースで圧倒的に有利な枠");
+  else if(b.racer_boat_number===2) good.push("2コースで内側の有利な枠");
+  if(nat===best.nat&&nat>=5.5) good.push("全国勝率が6艇で一番高く、実力は格上");
+  else if(nat>=6.5) good.push("全国勝率が高く実力上位");
+  if(loc===best.loc&&loc>=5.5) good.push("当地勝率が一番高く、この水面が得意");
+  else if(loc>=6) good.push("当地勝率が高く水面との相性が良い");
+  if(b.racer_class_number===1) good.push("A1級で格が一番上");
+  if(mot===best.mot&&mot>=38) good.push("モーター2連率が一番高く、エンジンが好調");
+  else if(mot>=42) good.push("モーター2連率が高くエンジン好調");
+  if(bot===best.bot&&bot>=40) good.push("ボート2連率が一番高く船も好調");
+  if(st!=null&&st===best.st&&st<=0.15) good.push("平均STが一番速く、スタートが得意");
+  else if(st!=null&&st<=0.13) good.push("平均STが速くスタートが鋭い");
+  if(hasEx&&s.exTime>0&&s.exTime===best.ex) good.push("展示タイムが6艇で一番速い");
+  if(mot>0&&mot<28) weak.push("モーター2連率が低めでエンジンが少し心配");
+  if(nat>0&&nat<3.5) weak.push("全国勝率が低めで実力は少し劣る");
+  if(st!=null&&st>=0.21) weak.push("平均STが遅めでスタートに不安");
+  if(b.racer_boat_number===6) weak.push("6コースで一番外側、不利な枠");
+  else if(b.racer_boat_number===5) weak.push("5コースで外側、少し不利な枠");
+  if(b.racer_class_number===4) weak.push("B2級で格は下");
+  var txt="";
+  if(good.length) txt=good.slice(0,3).join("。")+"。";
+  if(weak.length) txt+=(txt?" ただし、":"")+weak.slice(0,2).join("。")+"。";
+  if(!txt) txt="目立った強みも弱みもなく、平均的な評価です。";
+  return txt;
+}
+
+/* ---------- tickets ---------- */
+function buildTickets(scored){
+  var n=scored.map(function(s){return s.boat.racer_boat_number;});
+  var a=n[0], b=n[1], c=n[2], d=n[3], e=n[4];
+  var seconds=[b,c,d], thirds=[b,c,d,e];
+  var san=[]; // [comboText, weight]
+  seconds.forEach(function(s2){
+    thirds.forEach(function(s3){
+      if(s3!==s2) san.push(a+"-"+s2+"-"+s3);
+    });
+  });
+  // order 3rentan by combined rank strength (already roughly ordered)
+  var ni=[a+"-"+b, a+"-"+c, b+"-"+a];
+  var sanpuku=[[a,b,c],[a,b,d],[a,c,d]].map(function(t){
+    return t.slice().sort(function(x,y){return x-y;}).join("-");
+  });
+  return [
+    {id:"sanrentan", title:"3連単（本命軸フォーメーション）", combos:san, weight:2, formation:"1着："+a+"号艇（◎）固定 ／ 2着："+seconds.join("・")+" ／ 3着："+thirds.join("・")},
+    {id:"nirentan", title:"2連単（保険）", combos:ni, weight:2, formation:"◎から相手へ。逆の1点も押さえます。"},
+    {id:"sanpuku", title:"3連複（保険）", combos:sanpuku, weight:1, formation:"◎と上位の組み合わせ。順番は問いません。"}
+  ];
+}
+function allocate(groups, budget){
+  var units=Math.floor(budget/100);
+  var flat=[];
+  groups.forEach(function(g){ g.combos.forEach(function(c){ flat.push({g:g.id, combo:c, w:g.weight, amt:0}); }); });
+  var totalW=0; flat.forEach(function(f){ totalW+=f.w; });
+  var used=0;
+  flat.forEach(function(f){ f.amt=Math.floor(units*f.w/totalW); used+=f.amt; });
+  var rest=units-used, i=0;
+  // remainder goes to highest-priority combos first (3rentan head = most likely)
+  while(rest>0&&flat.length){ flat[i%flat.length].amt+=1; rest--; i++; }
+  // if budget smaller than combo count, zero-amount combos stay 0 for the tail:
+  if(units<flat.length){
+    flat.forEach(function(f){ f.amt=0; });
+    for(var j=0;j<units;j++) flat[j].amt=1;
+  }
+  return flat;
+}
+
+/* ---------- rendering ---------- */
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function pct(v){return v==null?"―":(Math.round(v*10)/10)+"%";}
+function num(v){return v==null?"―":(Math.round(v*100)/100);}
+
+function renderResult(race){
+var res=scoreRace(race);
+currentScored=res;
+currentTickets=buildTickets(res.scored);
+var stadiumName=STADIUMS[race.race_stadium_number]||"";
+var html="";
+html+='<section class="card">';
+html+='<h2><span class="step">3</span>予想結果</h2>';
+html+='<div class="race-head"><div class="race-title">'+esc(stadiumName)+" "+race.race_number+"R　"+esc(race.race_title||"")+(race.race_subtitle?" "+esc(race.race_subtitle):"")+'</div>';
+html+='<div class="race-meta">締切 '+esc(closedTime(race))+' ／ '+res.maxScore+'点満点で計算</div></div>';
+if(res.hasEx){
+html+='<span class="badge ok">展示タイム込みで計算しました</span>';
+}else if(previewsOk){
+html+='<span class="badge wait">展示タイムはまだ発表されていないので、展示なしで計算しました</span>';
+}else{
+html+='<span class="badge wait">直前情報が取れなかったので、展示タイムなしで計算しました</span>';
+}
+res.scored.forEach(function(s,idx){
+var b=s.boat;
+var mark=idx<4?MARKS[idx]:"・";
+var mc=idx<4?MARK_CLASS[idx]:"none";
+var cls=CLASSES[b.racer_class_number]||"";
+html+='<article class="boat'+(idx===0?" top1":"")+'">';
+html+='<div class="boat-row">';
+html+='<div class="mark '+mc+'" aria-label="'+(idx<4?mark:"印なし")+'">'+mark+'</div>';
+html+='<div class="lane lane'+b.racer_boat_number+'">'+b.racer_boat_number+'</div>';
+html+='<div class="boat-name">'+esc(b.racer_name)+' <span class="cls">'+esc(cls)+'</span></div>';
+html+='<div class="score"><b>'+fmt(s.total)+'</b><small>点 / '+res.maxScore+'</small></div>';
+html+='</div>';
+html+='<div class="bar"><i style="width:'+Math.round(s.total/res.maxScore*100)+'%"></i></div>';
+html+='<p class="reason">'+(idx===0?"<b>本命。</b>":"")+esc(s.reason)+'</p>';
+html+='<div class="stats">';
+html+='<div><span>全国勝率</span><b>'+num(b.racer_national_top_1_percent)+'</b></div>';
+html+='<div><span>当地勝率</span><b>'+num(b.racer_local_top_1_percent)+'</b></div>';
+html+='<div><span>平均ST</span><b>'+(b.racer_average_start_timing==null?"―":Number(b.racer_average_start_timing).toFixed(2))+'</b></div>';
+html+='<div><span>モーター2連率</span><b>'+pct(b.racer_assigned_motor_top_2_percent)+'</b></div>';
+html+='<div><span>ボート2連率</span><b>'+pct(b.racer_assigned_boat_top_2_percent)+'</b></div>';
+if(res.hasEx){
+html+='<div><span>展示タイム</span><b>'+(s.exTime>0?Number(s.exTime).toFixed(2):"―")+'</b></div>';
+}else{
+html+='<div><span>2連率（全国）</span><b>'+pct(b.racer_national_top_2_percent)+'</b></div>';
+}
+html+='</div>';
+html+='<p class="breakdown">点数の内訳：全国 '+fmt(s.parts.nat)+' ／ 当地 '+fmt(s.parts.loc)+' ／ モーター '+fmt(s.parts.mot)+' ／ ボート '+fmt(s.parts.bot)+' ／ ST '+fmt(s.parts.st)+' ／ 級別 '+fmt(s.parts.cls)+' ／ コース '+fmt(s.parts.crs)+(s.parts.ex!=null?' ／ 展示 '+fmt(s.parts.ex):"")+'</p>';
+html+='</article>';
+});
+html+='<p class="note">展示タイムはレース直前に発表されます。締切が近いレースは、下のボタンで取り直すと反映されることがあります。</p>';
+html+='<button class="btn sub" id="reloadPreviewBtn" type="button">直前情報を取り直す</button>';
+html+='</section>';
+
+html+='<section class="card" id="ticketCard">';
+html+='<h2><span class="step">4</span>おすすめ買い目</h2>';
+html+='<div class="budget-row"><label for="budgetInput">予算（合計）</label><div class="budget-input"><input id="budgetInput" type="number" inputmode="numeric" min="100" step="100" value="3000"><span>円</span></div></div>';
+html+='<div class="chips" id="budgetChips">'
++[1000,2000,3000,5000,10000].map(function(v){return '<button type="button" class="chip" data-v="'+v+'" aria-pressed="'+(v===3000)+'">'+v.toLocaleString()+'円</button>';}).join("")
++'</div>';
+html+='<div id="ticketArea"></div>';
+html+='<div class="total-line"><span>合計</span><b id="ticketTotal">―</b></div>';
+html+='<p class="note" id="ticketNote"></p>';
+html+='<button class="btn sub" id="copyBtn" type="button">買い目をコピーする</button> <span class="note" id="copyMsg" role="status"></span>';
+html+='</section>';
+
+resultArea.innerHTML=html;
+
+var reloadBtn=$("reloadPreviewBtn");
+reloadBtn.addEventListener("click",function(){
+reloadBtn.textContent="取り直し中…"; reloadBtn.disabled=true;
+fetchJson(apiUrl("previews")).then(function(j){
+previewsMap={}; previewsOk=true;
+var list=j.previews||[];
+for(var i=0;i<list.length;i++){ previewsMap[list[i].race_stadium_number+"-"+list[i].race_number]=list[i];}
+}).catch(function(){ previewsOk=false;}).then(function(){
+if(selRace) renderResult(selRace);
+});
+});
+
+var input=$("budgetInput");
+input.addEventListener("input",function(){
+var chips=$("budgetChips").querySelectorAll(".chip");
+for(var i=0;i<chips.length;i++) chips[i].setAttribute("aria-pressed","false");
+renderTickets();
+});
+var chips=$("budgetChips").querySelectorAll(".chip");
+chips.forEach(function(ch){
+ch.addEventListener("click",function(){
+input.value=ch.dataset.v;
+for(var i=0;i<chips.length;i++) chips[i].setAttribute("aria-pressed", String(chips[i]===ch));
+renderTickets();
+});
+});
+$("copyBtn").addEventListener("click",copyTickets);
+renderTickets();
+}
+
+function renderTickets(){
+var input=$("budgetInput");
+var budget=parseInt(input.value,10);
+var area=$("ticketArea"), totalEl=$("ticketTotal"), noteEl=$("ticketNote");
+if(isNaN(budget)||budget<100){
+area.innerHTML='<p class="note">予算を100円以上で入れてください。</p>';
+totalEl.textContent="―"; noteEl.textContent="";
+return;
+}
+budget=Math.floor(budget/100)*100;
+var flat=allocate(currentTickets,budget);
+var byGroup={};
+flat.forEach(function(f){ (byGroup[f.g]=byGroup[f.g]||[]).push(f);});
+var html="", grand=0;
+currentTickets.forEach(function(g){
+var items=byGroup[g.id]||[];
+var sub=0; items.forEach(function(f){ sub+=f.amt*100;});
+grand+=sub;
+html+='<div class="ticket-group"><div class="ticket-group-head"><h3>'+esc(g.title)+'</h3><span class="sub">'+items.length+'点　'+sub.toLocaleString()+'円</span></div>';
+html+='<div class="formation">'+esc(g.formation)+'</div>';
+html+='<table class="tickets"><tbody>';
+items.forEach(function(f){
+if(f.amt>0){ html+='<tr><td class="combo">'+esc(f.combo)+'</td><td class="amt">'+(f.amt*100).toLocaleString()+'円</td></tr>';}
+else{ html+='<tr class="zero"><td class="combo">'+esc(f.combo)+'</td><td class="amt">予算不足</td></tr>';}
+});
+html+='</tbody></table></div>';
+});
+area.innerHTML=html;
+totalEl.textContent=grand.toLocaleString()+"円";
+var totalCombos=flat.length;
+if(budget<totalCombos*100){
+noteEl.textContent="予算が少ないので、全"+totalCombos+"点は買えません。本命に近い買い目から優先して配分しています。全部買うには最低 "+(totalCombos*100).toLocaleString()+"円必要です。";
+}else{
+noteEl.textContent="全"+totalCombos+"点を、100円単位で配分しています（3連単と2連単を少し厚め）。金額は目安です。";
+}
+}
+function copyTickets(){
+var input=$("budgetInput");
+var budget=parseInt(input.value,10);
+var msg=$("copyMsg");
+if(isNaN(budget)||budget<100||!currentTickets){ msg.textContent="先に予算を入れてください。"; return;}
+budget=Math.floor(budget/100)*100;
+var flat=allocate(currentTickets,budget);
+var lines=[];
+currentTickets.forEach(function(g){
+lines.push("");
+flat.filter(function(f){return f.g===g.id&&f.amt>0;}).forEach(function(f){
+lines.push(f.combo+"　"+(f.amt*100)+"円");
+});
+});
+var race=selRace;
+var head="競艇予想 "+(STADIUMS[race.race_stadium_number]||"")+" "+race.race_number+"R（締切 "+closedTime(race)+"）";
+var text=head+"\n"+lines.join("\n");
+function done(){ msg.textContent="コピーしました。メモ帳などに貼れます。";}
+function fail(){ msg.textContent="コピーできませんでした。画面を見ながら買ってください。";}
+if(navigator.clipboard&&navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(done).catch(fail);
+}else{ fail();}
+}
+
+loadAll();
+})();
+</script>
+</body>
+</html>
